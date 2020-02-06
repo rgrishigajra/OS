@@ -22,6 +22,7 @@ const	struct	cmdent	cmdtab[] = {
 	{"ps",		FALSE,	xsh_ps},
 	{"sleep",	FALSE,	xsh_sleep},
 	{"uptime",	FALSE,	xsh_uptime},
+	{"prodcons", FALSE, xsh_prodcons},
 #ifdef GPIO
 	{"led",         FALSE,  xsh_led},
 #endif
@@ -36,7 +37,8 @@ const	struct	cmdent	cmdtab[] = {
 #ifdef MMU
 	{"test_mmu", 	FALSE, 	xsh_mmu},
 #endif /* MMU */
-  {"?",		FALSE,	xsh_help}
+  {"?",		FALSE,	xsh_help},
+  {"hello", FALSE, xsh_hello}
 };
 
 uint32	ncmd = sizeof(cmdtab) / sizeof(struct cmdent);

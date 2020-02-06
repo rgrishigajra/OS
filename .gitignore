@@ -16,6 +16,7 @@ config/conf.c
 include/conf.h
 system/conf.c
 TAGS
+.DS_Store
 
 # binaries
 config/config
