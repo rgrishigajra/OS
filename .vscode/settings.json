@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "prodcons_bb.h": "c",
-        "xinu.h": "c"
+        "xinu.h": "c",
+        "prodcons.h": "c"
     }
 }
