@@ -1,0 +1,2 @@
+> an explanation of which future mode was used for fibonachchi and why.
+I used future shared mode while running fibonachchi, this was since future of each state depended on two past futures, so each future object was waited on by atleast two consumers. So by definition I had to use future shared. Future exclusives are immutable and the object is lost once a single consumer consumes the future. So this would create problems here where we need to use the future values for 2 consumers.
