@@ -2,6 +2,9 @@
     "files.associations": {
         "prodcons_bb.h": "c",
         "xinu.h": "c",
-        "prodcons.h": "c"
+        "prodcons.h": "c",
+        "future_prodcons.h": "c",
+        "cstdlib": "c",
+        "stream.h": "c"
     }
 }

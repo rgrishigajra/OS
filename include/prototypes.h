@@ -24,7 +24,7 @@ extern	pri16	chprio(pid32, pri16);
 
 /* in file clkupdate.S */
 
-extern	ulong	clkcount(void);
+extern	ulong clkcount(void);
 
 /* in file clkhandler.c */
 

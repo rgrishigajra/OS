@@ -9,6 +9,7 @@
 #include <future.h>
 #include <future_fib.h>
 #include <future_prodcons.h>
+#include <stream.h>
 
 /*------------------------------------------------------------------------
  * xsh_run - //
@@ -60,6 +61,7 @@ void prodcons_bb(int nargs, char *args[])
     return;
   }
 }
+
 shellcmd xsh_run(int nargs, char *args[])
 {
 
@@ -68,6 +70,7 @@ shellcmd xsh_run(int nargs, char *args[])
   {
     printf("prodcons_bb\n");
     printf("futures_test\n");
+    printf("tscdf\n");
     return OK;
   }
   /* This will go past "run" and pass the function/process name and its
@@ -102,7 +105,7 @@ shellcmd xsh_run(int nargs, char *args[])
   }
   if ((strncmp(args[0], "futures_test", 12) == 0) && (strncmp(args[1], "-f", 2) == 0))
   {
-    
+
     int fib = -1, i;
 
     fib = atoi(args[2]);
@@ -132,7 +135,7 @@ shellcmd xsh_run(int nargs, char *args[])
       // TODO - you need to add your code here
       for (i = 0; i <= fib; i++)
       {
-        resume(create(ffib, 1024, 20, "ffib", 1,i));
+        resume(create(ffib, 1024, 20, "ffib", 1, i));
       }
 
       future_get(fibfut[fib], (char *)&final_fib);
@@ -146,5 +149,9 @@ shellcmd xsh_run(int nargs, char *args[])
       printf("Nth Fibonacci value for N=%d is %d\n", fib, final_fib);
       return (OK);
     }
+  }
+  if (strncmp(args[0], "tscdf", 5) == 0)
+  {
+    resume(create((void *)stream_proc, 4096, 20, "stream_proc", 2, nargs, args));
   }
 }
