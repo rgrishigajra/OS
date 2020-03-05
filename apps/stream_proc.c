@@ -109,9 +109,9 @@ int stream_proc(int nargs, char *args[])
     uint size = sizeof(de) * work_queue_depth;
     //   printf("%d",size);
     // Create streams
-    if ((inputstream = (struct stream **)getmem(sizeof(struct stream *) * (num_streams)))
-      == (struct stream **) SYSERR) {
-    printf("getmem failed\n");
+    if ((inputstream = (struct stream **)getmem(sizeof(struct stream *) * (num_streams))) == (struct stream **)SYSERR)
+    {
+        printf("getmem failed\n");
     }
     for (i = 0; i < num_streams; i++)
     {
@@ -137,6 +137,11 @@ int stream_proc(int nargs, char *args[])
     // Create consumer processes and initialize streams
     // Use `i` as the stream id.
 
+    if ((pcport = ptcreate(num_streams)) == SYSERR)
+    {
+        printf("ptcreate failed\n");
+        return (-1);
+    }
     for (i = 0; i < num_streams; i++)
     {
         resume(create((void *)stream_consumer, 4096, 20, "stream_consumer", 2, i, inputstream[i]));
