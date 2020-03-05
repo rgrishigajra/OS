@@ -1,6 +1,6 @@
 #include <xinu.h>
 #include <stream.h>
-#include "tscdf_input.h"
+#include "tscdf.h"
 
 int num_streams, work_queue_depth, time_window, output_time;
 
@@ -27,7 +27,7 @@ void stream_consumer(int32 id, struct stream *str)
         if (count++ == output_time - 1)
         {
             char output[10];
-            int32 qarray = tscdf_quartiles(tc);
+            int32 *qarray = tscdf_quartiles(tc);
 
             if (qarray == NULL)
             {
@@ -109,6 +109,10 @@ int stream_proc(int nargs, char *args[])
     uint size = sizeof(de) * work_queue_depth;
     //   printf("%d",size);
     // Create streams
+    if ((inputstream = (struct stream **)getmem(sizeof(struct stream *) * (num_streams)))
+      == (struct stream **) SYSERR) {
+    printf("getmem failed\n");
+    }
     for (i = 0; i < num_streams; i++)
     {
         struct stream *newstream;
@@ -125,7 +129,7 @@ int stream_proc(int nargs, char *args[])
         newstream->head = 0;
         newstream->tail = 0;
         inputstream[i] = newstream;
-        printf("Made a new stream in inputstream[%d]: and queue at:%d\n", i, newstream->queue);
+        // printf("Made a new stream in inputstream[%d]: and queue at:%d\n", i, newstream->queue);
     }
     int st, ts, v;
     char *a;
@@ -153,7 +157,7 @@ int stream_proc(int nargs, char *args[])
         head = inputstream[st]->head;
         inputstream[st]->queue[head].time = ts;
         inputstream[st]->queue[head].value = v;
-        printf("Produced->%d %d\n", inputstream[st]->queue[head].time, inputstream[st]->queue[head].value);
+        // printf("Produced->%d %d\n", inputstream[st]->queue[head].time, inputstream[st]->queue[head].value);
         head = (head + 1) % work_queue_depth;
         inputstream[st]->head = head;
         signal(inputstream[st]->mutex);
