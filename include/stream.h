@@ -1,5 +1,5 @@
 #include<xinu.h>
-
+#include<future.h>
 typedef struct data_element {
   int32 time;
   int32 value;
@@ -15,5 +15,8 @@ struct stream {
 };
 void stream_consumer(int32 id, struct stream *str);
 int stream_proc(int nargs, char* args[]);
+void stream_consumer_futures(int32 id, future_t *f);
+int stream_proc_futures(int nargs, char *args[]);
+future_t **farray;
 
 extern struct stream **inputstream;

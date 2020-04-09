@@ -10,7 +10,6 @@
 #include <future_fib.h>
 #include <future_prodcons.h>
 #include <stream.h>
-
 /*------------------------------------------------------------------------
  * xsh_run - //
  *------------------------------------------------------------------------
@@ -25,6 +24,68 @@ int one = 1;
 int zero = 0;
 int two = 2;
 future_t **fibfut;
+
+void waitFor(unsigned int wait_msecs)
+{
+  ulong secs, msecs;
+  secs = clktime;
+  msecs = clkticks;
+  while (((clktime * 1000) + clkticks) - ((secs * 1000) + msecs) < wait_msecs)
+    ;
+}
+void futureq_test1(int nargs, char *args[])
+{
+  int three = 3, four = 4, five = 5, six = 6;
+  future_t *f_queue;
+  f_queue = future_alloc(FUTURE_QUEUE, sizeof(int), 3);
+
+  resume(create(future_cons, 1024, 20, "fcons6", 1, f_queue));
+  resume(create(future_cons, 1024, 20, "fcons7", 1, f_queue));
+  resume(create(future_cons, 1024, 20, "fcons8", 1, f_queue));
+  resume(create(future_cons, 1024, 20, "fcons9", 1, f_queue));
+  resume(create(future_prod, 1024, 20, "fprod3", 2, f_queue, (char *)&three));
+  resume(create(future_prod, 1024, 20, "fprod4", 2, f_queue, (char *)&four));
+  resume(create(future_prod, 1024, 20, "fprod5", 2, f_queue, (char *)&five));
+  resume(create(future_prod, 1024, 20, "fprod6", 2, f_queue, (char *)&six));
+  waitFor(100);
+}
+
+void futureq_test2(int nargs, char *args[])
+{
+  int seven = 7, eight = 8, nine = 9, ten = 10, eleven = 11;
+  future_t *f_queue;
+  f_queue = future_alloc(FUTURE_QUEUE, sizeof(int), 3);
+
+  resume(create(future_prod, 1024, 20, "fprod10", 2, f_queue, (char *)&seven));
+  resume(create(future_prod, 1024, 20, "fprod11", 2, f_queue, (char *)&eight));
+  resume(create(future_prod, 1024, 20, "fprod12", 2, f_queue, (char *)&nine));
+  resume(create(future_prod, 1024, 20, "fprod13", 2, f_queue, (char *)&ten));
+  resume(create(future_prod, 1024, 20, "fprod13", 2, f_queue, (char *)&eleven));
+
+  resume(create(future_cons, 1024, 20, "fcons14", 1, f_queue));
+  resume(create(future_cons, 1024, 20, "fcons15", 1, f_queue));
+  resume(create(future_cons, 1024, 20, "fcons16", 1, f_queue));
+  resume(create(future_cons, 1024, 20, "fcons17", 1, f_queue));
+  resume(create(future_cons, 1024, 20, "fcons18", 1, f_queue));
+  waitFor(100);
+}
+
+void futureq_test3(int nargs, char *args[])
+{
+  int three = 3, four = 4, five = 5, six = 6;
+  future_t *f_queue;
+  f_queue = future_alloc(FUTURE_QUEUE, sizeof(int), 3);
+
+  resume(create(future_cons, 1024, 20, "fcons6", 1, f_queue));
+  resume(create(future_prod, 1024, 20, "fprod3", 2, f_queue, (char *)&three));
+  resume(create(future_prod, 1024, 20, "fprod4", 2, f_queue, (char *)&four));
+  resume(create(future_prod, 1024, 20, "fprod5", 2, f_queue, (char *)&five));
+  resume(create(future_prod, 1024, 20, "fprod6", 2, f_queue, (char *)&six));
+  resume(create(future_cons, 1024, 20, "fcons7", 1, f_queue));
+  resume(create(future_cons, 1024, 20, "fcons8", 1, f_queue));
+  resume(create(future_cons, 1024, 20, "fcons9", 1, f_queue));
+  waitFor(100);
+}
 void prodcons_bb(int nargs, char *args[])
 {
   mutex = semcreate(1);
@@ -103,7 +164,28 @@ shellcmd xsh_run(int nargs, char *args[])
     resume(create(future_cons, 1024, 20, "fcons5", 1, f_shared));
     resume(create(future_prod, 1024, 20, "fprod2", 2, f_shared, (char *)&two));
   }
-  if ((strncmp(args[0], "futures_test", 12) == 0) && (strncmp(args[1], "-f", 2) == 0))
+  if ((strncmp(args[0], "futures_test", 12) == 0) && (strncmp(args[1], "-fq", 3) == 0))
+  {
+    if ((strncmp(args[1], "-fq1", 4) == 0))
+    {
+      printf("futureq_test1\n");
+      resume(create(futureq_test1, 1024, 20, "futureq_test1", 2, nargs, args));
+      return 0;
+    }
+    if ((strncmp(args[1], "-fq2", 4) == 0))
+    {
+      printf("futureq_test2\n");
+      resume(create(futureq_test2, 1024, 20, "futureq_test2", 2, nargs, args));
+      return 0;
+    }
+    if ((strncmp(args[1], "-fq3", 4) == 0))
+    {
+      printf("futureq_test3\n");
+      resume(create(futureq_test3, 1024, 20, "futureq_test3", 2, nargs, args));
+      return 0;
+    }
+  }
+  else if ((strncmp(args[0], "futures_test", 12) == 0) && (strncmp(args[1], "-f", 2) == 0))
   {
 
     int fib = -1, i;
@@ -149,6 +231,10 @@ shellcmd xsh_run(int nargs, char *args[])
       printf("Nth Fibonacci value for N=%d is %d\n", fib, final_fib);
       return (OK);
     }
+  }
+if (strncmp(args[0], "tscdf_fw", 7) == 0)
+  { printf("yeah");
+    resume(create((void *)stream_proc_futures, 4096, 20, "stream_proc", 2, nargs, args));
   }
   if (strncmp(args[0], "tscdf", 5) == 0)
   {
