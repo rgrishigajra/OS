@@ -229,11 +229,11 @@ shellcmd xsh_run(int nargs, char *args[])
       return (OK);
     }
   }
-if (strncmp(args[0], "tscdf_fw", 7) == 0)
-  { 
+  if (strncmp(args[0], "tscdf_fw", 7) == 0)
+  {
     resume(create((void *)stream_proc_futures, 4096, 20, "stream_proc", 2, nargs, args));
   }
-  if (strncmp(args[0], "tscdf", 5) == 0)
+  else if (strncmp(args[0], "tscdf", 5) == 0)
   {
     resume(create((void *)stream_proc, 4096, 20, "stream_proc", 2, nargs, args));
   }
