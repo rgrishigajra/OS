@@ -168,19 +168,16 @@ shellcmd xsh_run(int nargs, char *args[])
   {
     if ((strncmp(args[1], "-fq1", 4) == 0))
     {
-      printf("futureq_test1\n");
       resume(create(futureq_test1, 1024, 20, "futureq_test1", 2, nargs, args));
       return 0;
     }
     if ((strncmp(args[1], "-fq2", 4) == 0))
     {
-      printf("futureq_test2\n");
       resume(create(futureq_test2, 1024, 20, "futureq_test2", 2, nargs, args));
       return 0;
     }
     if ((strncmp(args[1], "-fq3", 4) == 0))
     {
-      printf("futureq_test3\n");
       resume(create(futureq_test3, 1024, 20, "futureq_test3", 2, nargs, args));
       return 0;
     }
@@ -233,7 +230,7 @@ shellcmd xsh_run(int nargs, char *args[])
     }
   }
 if (strncmp(args[0], "tscdf_fw", 7) == 0)
-  { printf("yeah");
+  { 
     resume(create((void *)stream_proc_futures, 4096, 20, "stream_proc", 2, nargs, args));
   }
   if (strncmp(args[0], "tscdf", 5) == 0)
