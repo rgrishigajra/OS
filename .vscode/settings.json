@@ -5,6 +5,7 @@
         "prodcons.h": "c",
         "future_prodcons.h": "c",
         "cstdlib": "c",
-        "stream.h": "c"
+        "stream.h": "c",
+        "future.h": "c"
     }
 }
