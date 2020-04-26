@@ -231,7 +231,7 @@ shellcmd xsh_run(int nargs, char *args[])
   }
   if (strncmp(args[0], "tscdf_fq", 7) == 0)
   {
-    resume(create((void *)stream_proc_futures, 4096, 20, "stream_proc", 2, nargs, args));
+    resume(create((void *)stream_proc_futures, 4096, 20, "stream_proc_futures", 2, nargs, args));
   }
   else if (strncmp(args[0], "tscdf", 5) == 0)
   {
