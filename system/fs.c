@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-// #ifdef FS
+#ifdef FS
 #include <fs.h>
 
 static struct fsystem fsd;
@@ -589,4 +589,4 @@ int fs_unlink(char *filename)
         return SYSERR;
     }
 }
-// #endif /* FS */
+#endif /* FS */
