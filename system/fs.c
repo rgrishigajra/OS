@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifdef FS
+// #ifdef FS
 #include <fs.h>
 
 static struct fsystem fsd;
@@ -30,6 +30,15 @@ int next_open_fd = 0;
 
 int fs_fileblock_to_diskblock(int dev, int fd, int fileblock);
 
+int ceil(int num, int div)
+{
+    int inum = num / div;
+    if (num % div != 0)
+    {
+        return inum + 1;
+    }
+    return inum;
+}
 int fs_fileblock_to_diskblock(int dev, int fd, int fileblock)
 {
     int diskblock;
@@ -366,75 +375,73 @@ int fs_seek(int fd, int offset)
 
 int fs_read(int fd, void *buf, int nbytes)
 {
-    if (oft[fd].state == FSTATE_OPEN)
+
+    if (oft[fd].state != FSTATE_CLOSED)
     {
 
         if (oft[fd].flag != O_WRONLY)
         {
-            int bytes_done = 0;
+            int bytes_written = 0;
             int initial_block = oft[fd].fileptr / MDEV_BLOCK_SIZE;
-            int num_blocks = (nbytes / MDEV_BLOCK_SIZE) + 1;
+            int blocks_number = (nbytes / MDEV_BLOCK_SIZE) + 1;
             int initial_block_num = oft[fd].fileptr;
             int block_iterator = initial_block;
 
-            int inode_num = oft[fd].de->inode_num;
+            int temp_num = oft[fd].de->inode_num;
 
-            struct inode *new_inode = getmem(sizeof(struct inode));
-            fs_get_inode_by_num(0, inode_num, new_inode);
-
-            int total_bytes = nbytes;
+            struct inode *temp_inode = getmem(sizeof(struct inode));
+            fs_get_inode_by_num(0, temp_num, temp_inode);
             int block_offset = oft[fd].fileptr - initial_block_num;
-            int block = 0;
+            int temp_block = 0;
             int inode_iterator = 0;
             int partial_block_bits;
 
-            while (nbytes > bytes_done)
+            while (nbytes - bytes_written > 0)
             {
 
-                block = new_inode->blocks[block_iterator];
+                temp_block = temp_inode->blocks[block_iterator];
 
                 if (inode_iterator != 0)
                 {
-                    if (nbytes - bytes_done <= MDEV_BLOCK_SIZE)
+                    if (nbytes - bytes_written <= MDEV_BLOCK_SIZE)
                     {
-
-                        bs_bread(dev0, block, 0, block_cache, nbytes - block_offset);
-                        strncat(buf, block_cache, nbytes - block_offset);
-                        bytes_done = nbytes;
+                        bs_bread(dev0, temp_block, 0, block_cache, nbytes - bytes_written);
+                        strncat(buf, block_cache, nbytes - bytes_written);
+                        bytes_written = nbytes;
                     }
                     else
                     {
-                        bs_bread(dev0, block, 0, block_cache, MDEV_BLOCK_SIZE);
+                        bs_bread(dev0, temp_block, 0, block_cache, MDEV_BLOCK_SIZE);
                         strncat(buf, block_cache, MDEV_BLOCK_SIZE);
-                        bytes_done = bytes_done + MDEV_BLOCK_SIZE;
+                        bytes_written = bytes_written + MDEV_BLOCK_SIZE;
                         block_offset = block_offset + MDEV_BLOCK_SIZE;
                     }
                 }
                 else
                 {
-                    if (MDEV_BLOCK_SIZE - (oft[fd].fileptr % MDEV_BLOCK_SIZE) >= nbytes - bytes_done)
-                    {
 
-                        bs_bread(dev0, block, block_offset, block_cache, nbytes - block_offset);
+                    if (MDEV_BLOCK_SIZE - (oft[fd].fileptr % MDEV_BLOCK_SIZE) >= nbytes - bytes_written)
+                    {
+                        bs_bread(dev0, temp_block, block_offset, block_cache, nbytes - bytes_written);
                         memcpy(buf, block_cache, partial_block_bits);
-                        block_offset = block_offset + nbytes - bytes_done;
-                        block_offset = nbytes;
+                        block_offset = block_offset + nbytes - bytes_written;
+                        bytes_written = nbytes;
                     }
                     else
                     {
                         partial_block_bits = MDEV_BLOCK_SIZE - (oft[fd].fileptr % MDEV_BLOCK_SIZE);
-                        bs_bread(dev0, block, block_offset, block_cache, partial_block_bits);
+                        bs_bread(dev0, temp_block, block_offset, block_cache, partial_block_bits);
                         memcpy(buf, block_cache, partial_block_bits);
+                        bytes_written = bytes_written + partial_block_bits;
                         block_offset = block_offset + partial_block_bits;
-                        partial_block_bits += partial_block_bits;
                     }
-                    block_iterator++;
+                    inode_iterator++;
                 }
                 inode_iterator++;
                 block_iterator++;
             }
 
-            oft[fd].fileptr += total_bytes;
+            oft[fd].fileptr = bytes_written;
             return oft[fd].fileptr;
         }
         else
@@ -452,22 +459,14 @@ int fs_read(int fd, void *buf, int nbytes)
 
 int fs_write(int fd, void *buf, int nbytes)
 {
-
     if (oft[fd].state == FSTATE_OPEN)
     {
-
         if (oft[fd].flag != O_RDONLY)
         {
-
             int index = oft[fd].in.id;
             struct inode *inode_temp = (struct inode *)getmem(sizeof(struct inode));
             fs_get_inode_by_num(dev0, oft[fd].de->inode_num, inode_temp);
-            int num_blocks_needed = nbytes / MDEV_BLOCK_SIZE;
-            if (nbytes % MDEV_BLOCK_SIZE != 0)
-            {
-                num_blocks_needed++;
-            }
-
+            int num_blocks_needed = ceil(nbytes, MDEV_BLOCK_SIZE);
             int block_offset = nbytes % MDEV_BLOCK_SIZE;
             int block_iterator, inode_iterator;
             char *writing_buffer = getmem(fsd.blocksz);
@@ -480,9 +479,9 @@ int fs_write(int fd, void *buf, int nbytes)
                     if (fs_getmaskbit(inode_iterator) == 0)
                     {
                         fs_setmaskbit(inode_iterator);
-
                         if (block_iterator != num_blocks_needed - 1)
                         {
+
                             memcpy((void *)writing_buffer, offset, MDEV_BLOCK_SIZE);
                             bs_bwrite(dev0, inode_iterator, 0, writing_buffer, fsd.blocksz);
                             inode_temp->blocks[block_iterator] = inode_iterator;
@@ -589,4 +588,4 @@ int fs_unlink(char *filename)
         return SYSERR;
     }
 }
-#endif /* FS */
+// #endif /* FS */
