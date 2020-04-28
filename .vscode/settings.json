@@ -6,6 +6,7 @@
         "future_prodcons.h": "c",
         "cstdlib": "c",
         "stream.h": "c",
-        "future.h": "c"
+        "future.h": "c",
+        "ios": "c"
     }
 }

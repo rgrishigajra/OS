@@ -10,6 +10,8 @@
 #include <future_fib.h>
 #include <future_prodcons.h>
 #include <stream.h>
+#include <fstest.h>
+#include <fs.h>
 /*------------------------------------------------------------------------
  * xsh_run - //
  *------------------------------------------------------------------------
@@ -228,6 +230,10 @@ shellcmd xsh_run(int nargs, char *args[])
       printf("Nth Fibonacci value for N=%d is %d\n", fib, final_fib);
       return (OK);
     }
+  }
+  if (strncmp(args[0], "fstest", 7) == 0)
+  {
+    resume(create((void *)fstest, 4096, 20, "fstest", 2, nargs, args));
   }
   if (strncmp(args[0], "tscdf_fq", 7) == 0)
   {
