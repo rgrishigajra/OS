@@ -4,12 +4,11 @@ typedef enum colorType
 	black = 0
 } nodeColor;
 
-typedef int nodeKey;
 
 typedef struct treeNode
 {
 	nodeColor color;
-	nodeKey key;
+	pid32 key;
 	struct treeNode *left;
 	struct treeNode *right;
 	struct treeNode *parent;
@@ -20,7 +19,7 @@ typedef struct Tree
 	node *nil;
 	node *root;
 } tree;
-void tr_insert(tree *T, nodeKey key);
+void tr_insert(tree *T, pid32 key);
 void display(int k, node *x);
 void show(tree *T, node *x, int i);
 void inorder_traversal(tree *T, node *x);
