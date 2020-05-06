@@ -1,30 +1,21 @@
-
 #include <xinu.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <tree.h>
-#define RED 0
-#define BLACK 1
 
-struct node{
-	int key;
-	int color;
-	struct node *parent;
-	struct node *left;
-	struct node *right;
-};
-
-struct node *ROOT;
-struct node *NILL;
-
-void left_rotate(struct node *x);
-void right_rotate(struct node *x);
-void tree_print(struct node *x);
-void red_black_insert(int key);
-void red_black_insert_fixup(struct node *z);
-struct node *tree_search(int key);
-struct node *tree_minimum(struct node *x);
-void red_black_transplant(struct node *u, struct node *v);
-void red_black_delete(struct node *z);
-void red_black_delete_fixup(struct node *x);
-
+uint rbt()
+{
+	tree *T = newtree();
+	tr_insert(T, 3);
+	tr_insert(T, 1);
+	tr_insert(T, 5);
+	tr_insert(T, 7);
+	tr_insert(T, 6);
+	tr_insert(T, 8);
+	tr_insert(T, 9);
+	tr_insert(T, 10);
+	printf("Inorder Trversal: shows node, color code (red=1,black=0)");
+	inorder_traversal(T, T->root);
+	node *h3 = tr_search(T, T->root, 9);
+	printf("searched this:%d,\t found at: %p\n", h3->key, h3);
+	show(T, T->root, 0);
+	return 0;
+}
