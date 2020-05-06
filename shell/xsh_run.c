@@ -12,6 +12,7 @@
 #include <stream.h>
 #include <fstest.h>
 #include <fs.h>
+#include <tree.h>
 /*------------------------------------------------------------------------
  * xsh_run - //
  *------------------------------------------------------------------------
@@ -230,6 +231,10 @@ shellcmd xsh_run(int nargs, char *args[])
       printf("Nth Fibonacci value for N=%d is %d\n", fib, final_fib);
       return (OK);
     }
+  }
+  if (strncmp(args[0], "rbt", 3) == 0)
+  {
+    resume(create((void *)rbt, 4096, 20, "rbt", 0));
   }
   if (strncmp(args[0], "fstest", 7) == 0)
   {

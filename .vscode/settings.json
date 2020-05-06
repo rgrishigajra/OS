@@ -7,6 +7,8 @@
         "cstdlib": "c",
         "stream.h": "c",
         "future.h": "c",
-        "ios": "c"
+        "ios": "c",
+        "math.h": "c",
+        "fstest.h": "c"
     }
 }
